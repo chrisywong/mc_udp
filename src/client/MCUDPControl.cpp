@@ -356,6 +356,25 @@ int main(int argc, char * argv[])
           {
             alphaOut.resize(rjo.size());
           }
+
+#ifdef APPLY_LINK_EXTFORCES // for use with RTCSimExtForce
+          auto & datastore = controller.controller().datastore();
+          std::vector<sva::ForceVecd> simExtForceValVect;
+          int numExtForceJoints = controller.robot().refJointOrder().size() + 1;
+          simExtForceValVect.resize(numExtForceJoints);
+          cc.simExtForceVal.resize(numExtForceJoints);
+          cc.simExtForceFlag.resize(1);
+
+          for(auto & simForceVal : simExtForceValVect) simForceVal = sva::ForceVecd::Zero();
+
+          datastore.make<std::vector<sva::ForceVecd>>("simExtForceVal", simExtForceValVect);
+          datastore.make_initializer<bool>("simExtForceFlag", 0);
+
+          auto & simExtForceVal = datastore.get<std::vector<sva::ForceVecd>>("simExtForceVal");
+          auto & simExtForceFlag = datastore.get<bool>("simExtForceFlag");
+
+          mc_rtc::log::success("[MCUDPCon-Client] SimExtForce Enabled -- Number of joints: {%n} (should be {%n}+1)", numExtForceJoints, numExtForceJoints - 1);
+#endif
         }
         mc_rtc::log::info("[MCUDPControl] Init duration {}", init_dt.count());
         sensorsClient.init();
@@ -415,6 +434,16 @@ int main(int argc, char * argv[])
               }
             }
             cc.id = sc.id;
+
+#ifdef APPLY_LINK_EXTFORCES // for use with RTCSimExtForce
+            auto & datastore = controller.controller().datastore();
+            auto & simExtForceVal = datastore.get<std::vector<sva::ForceVecd>>("simExtForceVal");
+            auto & simExtForceFlag = datastore.get<bool>("simExtForceFlag");
+            cc.simExtForceVal = simExtForceVal; // write to send to Server
+            cc.simExtForceFlag.at(0) = simExtForceFlag; // note that
+                                                                             // controlClient.control().simExtForceFlag is
+                                                                             // std::vector<int>
+#endif
           }
           controlClient.send();
         }

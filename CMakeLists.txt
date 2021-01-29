@@ -20,6 +20,15 @@ option(BUILD_LEGACY_OPENRTM_SERVER "Build OpenRTM server with c++0x" OFF)
 option(BUILD_DUMMY_CLIENT "Build dummy client" OFF)
 option(BUILD_DUMMY_SERVER "Build dummy server" OFF)
 
+option(ENABLE_CHOREONOID_EXTFORCE "Enable application of external forces to links" OFF)
+if(${ENABLE_CHOREONOID_EXTFORCE})
+  add_definitions(-DAPPLY_LINK_EXTFORCES)
+  message(STATUS "ENABLE_CHOREONOID_EXTFORCE for external force definition in Choreonoid is ENABLED")
+else()
+  message(STATUS "ENABLE_CHOREONOID_EXTFORCE for external force definition in Choreonoid is DISABLED")
+endif()
+
+
 add_subdirectory(src)
 
 if(PYTHON_BINDING)

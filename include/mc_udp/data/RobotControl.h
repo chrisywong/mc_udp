@@ -9,6 +9,10 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#ifdef APPLY_LINK_EXTFORCES // for use with RTCSimExtForce
+#include <SpaceVecAlg/SpaceVecAlg>
+#endif
+
 
 namespace mc_udp
 {
@@ -23,6 +27,18 @@ struct MC_UDP_DATA_DLLAPI RobotControl
   /** Desired encoder velocity provided in the robot reference order
    * May be empty */
   std::vector<double> encoderVelocities;
+
+#ifdef APPLY_LINK_EXTFORCES // for use with RTCSimExtForce
+  /** Desired external force to be applied in simulation provided in the robot
+   * reference order */
+  std::vector<sva::ForceVecd> simExtForceVal;
+  /** Enable/disable flag status for external force applied in simulation
+      Although defined as bool in the controller-side, sent as int because
+     std::vector<bool> cannot be const
+  */
+  std::vector<int> simExtForceFlag;
+#endif
+
 
   /** Compute required buffer size */
   size_t size() const;

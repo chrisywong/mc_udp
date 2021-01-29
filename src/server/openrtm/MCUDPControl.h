@@ -45,6 +45,15 @@ protected:
   // Outputs
   RTC::TimedDoubleSeq m_qOut;
   RTC::OutPort<RTC::TimedDoubleSeq> m_qOutOut;
+#ifdef APPLY_LINK_EXTFORCES
+  RTC::TimedDoubleSeq m_extforceOut;
+  RTC::OutPort<RTC::TimedDoubleSeq> m_extforceOutOut; // adds connection to external force "extforce" defined
+                                                      // in
+  // "/usr/local/lib/choreonoid-1.6/rtc/Virtual-HRP4J-RTC.conf".
+  // Data format is 6 data points (3 forces and 3 moments)
+  RTC::TimedBooleanSeq m_extforceFlag;
+  RTC::OutPort<RTC::TimedBooleanSeq> m_extforceFlagOut;
+#endif
 
 private:
   /* Measure execution time */
@@ -57,6 +66,10 @@ private:
   bool got_control_;
   bool control_lost_;
   uint64_t control_lost_iter_;
+#ifdef APPLY_LINK_EXTFORCES
+  int numextForce = 0;
+  bool setextForceLength = false;
+#endif
 };
 
 extern "C"

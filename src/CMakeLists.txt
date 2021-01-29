@@ -34,6 +34,12 @@ endif()
 add_subdirectory(client)
 add_subdirectory(server)
 
+if(${ENABLE_CHOREONOID_EXTFORCE})
+  find_package(SpaceVecAlg)
+  target_link_libraries(mc_udp_data PUBLIC SpaceVecAlg::SpaceVecAlg)
+endif()
+
+
 install(DIRECTORY "${include_DIR}/data" DESTINATION include/mc_udp
         FILES_MATCHING PATTERN "*.h")
 install(FILES "${include_DIR}/logging.h" DESTINATION include/mc_udp)
@@ -52,4 +58,3 @@ install(EXPORT mc_udpTargets
   NAMESPACE mc_udp::
   DESTINATION lib/cmake/mc_udp
 )
-

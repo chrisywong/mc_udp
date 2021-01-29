@@ -55,6 +55,10 @@ MCUDPControl::MCUDPControl(RTC::Manager* manager)
     m_enabled(false),
     port(4445),
     m_qOutOut("qOut", m_qOut),
+#ifdef APPLY_LINK_EXTFORCES
+    m_extforceFlagOut("extforceFlag", m_extforceFlag),
+    m_extforceOutOut("extforceOut", m_extforceOut),
+#endif
     server_(),
     got_control_(false),
     control_lost_(false),
@@ -71,6 +75,10 @@ RTC::ReturnCode_t MCUDPControl::onInitialize()
   MC_UDP_INFO("MCUDPControl::onInitialize() starting")
   // Set OutPort buffer
   addOutPort("qOut", m_qOutOut);
+#ifdef APPLY_LINK_EXTFORCES
+  addOutPort("extforceOut", m_extforceOutOut);
+  addOutPort("extforceFlag", m_extforceFlagOut);
+#endif
 
   // Bind variables and configuration variable
   bindParameter("is_enabled", m_enabled, "0");
@@ -85,6 +93,12 @@ RTC::ReturnCode_t MCUDPControl::onActivated(RTC::UniqueId ec_id)
 {
   MC_UDP_INFO("MCUDPControl::onActivated")
   server_.restart(port);
+#ifdef APPLY_LINK_EXTFORCES
+  MC_UDP_SUCCESS("[MCUDPCon-Server] on Activate with SimExtForce")
+  m_extforceFlag.data.length(1);
+  m_extforceFlag.data[0] = false;
+  m_extforceFlagOut.write();
+#endif
   MC_UDP_SUCCESS("MCUDPControl started on " << port)
   return RTC::RTC_OK;
 }
@@ -124,6 +138,30 @@ RTC::ReturnCode_t MCUDPControl::onExecute(RTC::UniqueId ec_id)
       }
       m_qOut.tm = tm;
       m_qOutOut.write();
+
+#ifdef APPLY_LINK_EXTFORCES // for use with RTCSimExtForce
+      if(setextForceLength == false)
+      {
+        numextForce = control.encoders.size() + 1;
+        m_extforceOut.data.length(numextForce * 6);
+        setextForceLength = true;
+      }
+      else
+      {
+        for(int indFext = 0; indFext < numextForce; indFext++)
+        {
+          m_extforceOut.data[indFext * 6 + 0] = control.simExtForceVal.at(indFext).force().x();
+          m_extforceOut.data[indFext * 6 + 1] = control.simExtForceVal.at(indFext).force().y();
+          m_extforceOut.data[indFext * 6 + 2] = control.simExtForceVal.at(indFext).force().z();
+          m_extforceOut.data[indFext * 6 + 3] = control.simExtForceVal.at(indFext).moment().x();
+          m_extforceOut.data[indFext * 6 + 4] = control.simExtForceVal.at(indFext).moment().y();
+          m_extforceOut.data[indFext * 6 + 5] = control.simExtForceVal.at(indFext).moment().z();
+        }
+        m_extforceFlag.data[0] = control.simExtForceFlag.at(0);
+        m_extforceOutOut.write();
+        m_extforceFlagOut.write();
+      }
+#endif
     }
     else
     {
