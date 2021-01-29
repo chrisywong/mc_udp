@@ -373,7 +373,8 @@ int main(int argc, char * argv[])
           auto & simExtForceVal = datastore.get<std::vector<sva::ForceVecd>>("simExtForceVal");
           auto & simExtForceFlag = datastore.get<bool>("simExtForceFlag");
 
-          mc_rtc::log::success("[MCUDPCon-Client] SimExtForce Enabled -- Number of joints: {%n} (should be {%n}+1)", numExtForceJoints, numExtForceJoints - 1);
+          mc_rtc::log::success("[MCUDPCon-Client] SimExtForce Enabled -- Number of joints: {%n} (should be {%n}+1)",
+                               numExtForceJoints, numExtForceJoints - 1);
 #endif
         }
         mc_rtc::log::info("[MCUDPControl] Init duration {}", init_dt.count());
@@ -441,8 +442,8 @@ int main(int argc, char * argv[])
             auto & simExtForceFlag = datastore.get<bool>("simExtForceFlag");
             cc.simExtForceVal = simExtForceVal; // write to send to Server
             cc.simExtForceFlag.at(0) = simExtForceFlag; // note that
-                                                                             // controlClient.control().simExtForceFlag is
-                                                                             // std::vector<int>
+                                                        // controlClient.control().simExtForceFlag is
+                                                        // std::vector<int>
 #endif
           }
           controlClient.send();

@@ -10,9 +10,8 @@
 #include <string>
 #include <vector>
 #ifdef APPLY_LINK_EXTFORCES // for use with RTCSimExtForce
-#include <SpaceVecAlg/SpaceVecAlg>
+#  include <SpaceVecAlg/SpaceVecAlg>
 #endif
-
 
 namespace mc_udp
 {
@@ -38,7 +37,6 @@ struct MC_UDP_DATA_DLLAPI RobotControl
   */
   std::vector<int> simExtForceFlag;
 #endif
-
 
   /** Compute required buffer size */
   size_t size() const;
